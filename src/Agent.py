@@ -13,7 +13,6 @@ class Agent(MesaAgent):
         self.neighbours = neighbours
 
     def step(self):
-        self.update_attention()
         if self.unique_id == self.model.active_agent:
             chosen_id = np.random.choice(self.neighbours)
             chosen_neighbour = None
@@ -21,6 +20,7 @@ class Agent(MesaAgent):
                 if chosen_id == agent.graph_id:
                     chosen_neighbour = agent
             self.interact(chosen_neighbour)
+        self.update_attention()
         self.update_opinion()
 
     def interact(self, chosen_neighbour):
@@ -45,10 +45,10 @@ class Agent(MesaAgent):
             + np.random.normal(0, self.model.sd_info)
 
     def increase_attention(self):
-        d_attention = self.model.attention_decay * (2 - self.attention)
+        d_attention = self.model.attention_delta * (2 - self.attention)
         self.attention += d_attention
 
     def update_attention(self):
-        frac = self.model.attention_decay / np.power(self.model.population, 2)
+        frac = self.model.attention_delta / self.model.population # np.power(self.model.population, 2)
         d_attention = - 2 * frac * self.attention
         self.attention += d_attention

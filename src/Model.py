@@ -14,7 +14,7 @@ class HIOM(Model):
             self,
             population=100,
             dt=0.1,
-            attention_decay=0.2,
+            attention_delta=0.2,
             persuasion=1,
             a_min=-0.5,
             r_min=0.05,
@@ -26,7 +26,7 @@ class HIOM(Model):
 
         self.population = population
         self.dt = dt
-        self.attention_decay = attention_decay
+        self.attention_delta = attention_delta
         self.persuasion = persuasion
         self.a_min = a_min
         self.r_min = r_min
@@ -58,7 +58,7 @@ class HIOM(Model):
         self.data_collector.collect(self)
 
     def init_population(self):
-        self.M = nx.fast_gnp_random_graph(self.population, 0.2)
+        self.M = nx.fast_gnp_random_graph(self.population, 0.1)
         for node in self.M.nodes:
             neighbours = [edge[1] for edge in self.M.edges(node)]
             self.new_agent(node, neighbours)
