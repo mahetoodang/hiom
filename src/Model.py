@@ -12,7 +12,7 @@ from .Agent import Agent
 class HIOM(Model):
     def __init__(
             self,
-            population=100,
+            population=400,
             dt=0.1,
             attention_delta=0.2,
             persuasion=1,
