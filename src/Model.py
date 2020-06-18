@@ -7,6 +7,7 @@ from mesa.datacollection import DataCollector
 from mesa.time import BaseScheduler
 
 from .Agent import Agent
+from .Network import Network
 
 
 class HIOM(Model):
@@ -36,6 +37,7 @@ class HIOM(Model):
         self.schedule = BaseScheduler(self)
 
         # create the population
+        # self.M =
         self.M = nx.Graph()
         self.population = 0
         self.init_population(agents)
@@ -69,7 +71,9 @@ class HIOM(Model):
         self.population = pop_size
 
         # network topology is initialized
-        self.M = nx.fast_gnp_random_graph(self.population, 0.1)
+        # self.M = nx.fast_gnp_random_graph(self.population, 0.1)
+        network = Network(method="er", n=self.population, p=0.1)
+        self.M = network.get_graph()
 
         # for each node in the network, agent type
         # is chosen by random choice and an agent is created
