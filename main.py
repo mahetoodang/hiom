@@ -3,10 +3,11 @@ from src.plotter import plot_opinion_distribution \
     # plot_single_opinion, \
     # plot_single_information, \
     # plot_single_attention, \
+from scenarios.test import agents
 
 
 if __name__ == "__main__":
-    model = HIOM()
+    model = HIOM(agents)
     model.run_model()
 
     opinion = model.data_collector.get_model_vars_dataframe()["Opinion"]

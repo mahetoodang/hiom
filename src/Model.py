@@ -12,7 +12,7 @@ from .Agent import Agent
 class HIOM(Model):
     def __init__(
             self,
-            population=400,
+            agents,
             dt=0.1,
             attention_delta=0.2,
             persuasion=1,
@@ -24,7 +24,6 @@ class HIOM(Model):
 
         super().__init__()
 
-        self.population = population
         self.dt = dt
         self.attention_delta = attention_delta
         self.persuasion = persuasion
@@ -33,17 +32,19 @@ class HIOM(Model):
         self.sd_opinion = sd_opinion
         self.sd_info = sd_info
 
-        # Initialize a scheduler
+        # initialize a scheduler
         self.schedule = BaseScheduler(self)
 
         # create the population
         self.M = nx.Graph()
-        self.init_population()
+        self.population = 0
+        self.init_population(agents)
 
         # agent who will interact this turn
         self.active_agent = None
 
-        # add a schedule and a grid
+        # generates network topology
+        # not used right now, but can be used for mesa visualization
         self.grid = NetworkGrid(self.M)
 
         # add datacollector
@@ -57,21 +58,48 @@ class HIOM(Model):
         self.running = True
         self.data_collector.collect(self)
 
-    def init_population(self):
-        self.M = nx.fast_gnp_random_graph(self.population, 0.1)
-        for node in self.M.nodes:
-            neighbours = [edge[1] for edge in self.M.edges(node)]
-            self.new_agent(node, neighbours)
+    def init_population(self, agents):
+        # population size is calculated and an array of
+        # possible agent types is stored for pop generation
+        pop_size = 0
+        types = []
+        for atype in agents:
+            pop_size += atype["n"]
+            types.append([atype["n"], atype["generator"]])
+        self.population = pop_size
 
-    def new_agent(self, graph_id, neighbours):
+        # network topology is initialized
+        self.M = nx.fast_gnp_random_graph(self.population, 0.1)
+
+        # for each node in the network, agent type
+        # is chosen by random choice and an agent is created
+        for node in self.M.nodes:
+            # finds all neighbours in the network
+            neighbours = [edge[1] for edge in self.M.edges(node)]
+            # chooses the agent type by random choice
+            type_idx = random.choice(range(len(types)))
+            agent_type = types[type_idx]
+            # creates new agent using the generator func (agent_type[1])
+            self.new_agent(node, neighbours, agent_type[1])
+            # number of agents needed to create is reduced
+            # and the type is removed if no more agents of this
+            # type can be created
+            agent_type[0] -= 1
+            if agent_type[0] == 0:
+                del types[type_idx]
+
+    def new_agent(self, graph_id, neighbours, generator):
         agent_id = self.next_id()
-        agent = Agent(self, agent_id, graph_id, neighbours)
+        agent = Agent(
+            self,
+            agent_id,
+            graph_id,
+            neighbours,
+            generator
+        )
         self.schedule.add(agent)
 
     def step(self):
-        '''
-        Execute next time step.
-        '''
         self.choose_agent()
         self.schedule.step()
         # Save the statistics

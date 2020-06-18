@@ -4,13 +4,20 @@ import numpy as np
 
 class Agent(MesaAgent):
 
-    def __init__(self, model, unique_id, graph_id, neighbours):
+    def __init__(self, model, unique_id, graph_id, neighbours, generator):
         super().__init__(unique_id, model)
         self.graph_id = graph_id
-        self.opinion = -1 + 2 * np.random.random()
-        self.attention = np.random.random()
-        self.information = -1 + 2 * np.random.random()
+        self.opinion = None
+        self.attention = None
+        self.information = None
+        self.init_character(generator)
         self.neighbours = neighbours
+
+    def init_character(self, generator):
+        character = generator()
+        self.opinion = character["opinion"]
+        self.attention = character["attention"]
+        self.information = character["information"]
 
     def step(self):
         if self.unique_id == self.model.active_agent:
