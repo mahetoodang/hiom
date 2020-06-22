@@ -20,7 +20,8 @@ class HIOM(Model):
             a_min=-0.5,
             r_min=0.05,
             sd_opinion=0.15,
-            sd_info=0.005
+            sd_info=0.005,
+            network_params=None
     ):
 
         super().__init__()
@@ -40,6 +41,11 @@ class HIOM(Model):
         # self.M =
         self.M = nx.Graph()
         self.population = 0
+
+        if network_params is None:
+            network_params = {"method": "er", "p": 0.5}
+        self.network_params = network_params
+
         self.init_population(agents)
 
         # agent who will interact this turn
@@ -72,7 +78,7 @@ class HIOM(Model):
 
         # network topology is initialized
         # self.M = nx.fast_gnp_random_graph(self.population, 0.1)
-        network = Network(method="er", n=self.population, p=0.1)
+        network = Network(n=self.population, params=self.network_params)
         self.M = network.get_graph()
 
         # for each node in the network, agent type

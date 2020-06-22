@@ -1,4 +1,5 @@
 import networkx as nx
+import numpy as np
 
 
 class Network:
@@ -6,27 +7,29 @@ class Network:
     A class used to create a representation of population and connections between individuals.
 
     Attributes
-    method : str
-        String identifying a model of the network: "er", "ba", "ws", "lattice" and "social media"
-    Other attributes and their purpose depend on the selected method.
+    params : dict
+        Dictionary containing parameters used to generate network.
+        Fields:
+            "method" : string
+                Network will be generated according to selected method. Possible choices: "er", "ba", "ws", "lattice" and "social media"
+    n : int
+        Desired number of nodes in the network
 
     Methods
     get_graph : Graph
         Returns a graph created according to the parameters
     """
-    def __init__(self, method="er", n=100, p=0.5, m=100, k=2, path="../data/facebook_combined.txt"):
+    def __init__(self, params, n=100): #p=0.5, m=100, k=2, path="../data/facebook_combined.txt", n_blocks=10):
         self.G = nx.Graph()
         self.n = n
-        self.p = p
-        self.m = m
-        self.k = k
-        self.path = path
+        self.params = params
         self.init_methods = {"er": self.create_random_graph,
                              "ba": self.create_ba_graph,
                              "ws": self.create_ws_graph,
+                             "sb": self.create_sb_graph,
                              "lattice": self.create_lattice,
                              "social_media": self.create_social_media_graph}
-        self.init_methods[method]()
+        self.init_methods[params['method']]()
 
     def get_graph(self):
         return self.G
@@ -41,7 +44,7 @@ class Network:
             Probability of creating edge between two nodes
         """
 
-        self.G = nx.fast_gnp_random_graph(self.n, self.p)
+        self.G = nx.fast_gnp_random_graph(self.n, self.params['p'])
 
     def create_ba_graph(self):
         """
@@ -53,7 +56,7 @@ class Network:
             Number of edges to attach from a new node to existing ones
         """
 
-        self.G = nx.barabasi_albert_graph(self.n, self.m)
+        self.G = nx.barabasi_albert_graph(self.n, self.params['m'])
 
     def create_ws_graph(self):
         """
@@ -67,7 +70,24 @@ class Network:
             Probability of rewiring: adding a new node and removing existing one
         """
 
-        self.G = nx.watts_strogatz_graph(self.n, self.k, self.p)
+        self.G = nx.watts_strogatz_graph(self.n, self.params['k'], self.params['p'])
+
+    def create_sb_graph(self):
+        """
+        Generating a stochastic block graph
+
+        self.p : float
+            Probability of the edge between nodes belonging to different components
+        self.k : float
+            Probability of edges within a block/community
+        self.n_blocks : int
+            Number of blocks/communities that are to be created within the network
+        """
+        n_blocks = self.params['n_blocks']
+        probabilities = np.full((n_blocks, n_blocks), self.params['p'])
+        np.fill_diagonal(probabilities, self.params['k'])
+        block_sizes = [int(self.n/n_blocks) for _ in range(n_blocks)]
+        self.G = nx.stochastic_block_model(block_sizes, probabilities)
 
     def create_lattice(self):
         """
@@ -78,7 +98,7 @@ class Network:
         self.n : int
             Size of 2nd dimension
         """
-        self.G = nx.grid_2d_graph(self.m, self.n)
+        self.G = nx.grid_2d_graph(self.params['m'], self.n)
 
     def create_social_media_graph(self):
         """
@@ -87,4 +107,4 @@ class Network:
         self.path : string
             Path to the list of edges file
         """
-        self.G = nx.read_edgelist(self.path)
+        self.G = nx.read_edgelist(self.params['path'])
