@@ -7,7 +7,7 @@ from scenarios.test import agents
 
 
 if __name__ == "__main__":
-    model = HIOM(agents)
+    model = HIOM(agents, network_params={"method": "er", "p": 0.1})
     model.run_model()
 
     opinion = model.data_collector.get_model_vars_dataframe()["Opinion"]
