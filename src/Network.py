@@ -7,19 +7,32 @@ class Network:
     A class used to create a representation of population and connections between individuals.
 
     Attributes
+    ----------
     params : dict
         Dictionary containing parameters used to generate network.
         Fields:
             "method" : string
-                Network will be generated according to selected method. Possible choices: "er", "ba", "ws", "lattice" and "social media"
+                Network will be generated according to selected method. Possible values: "er", "ba", 
+                "ws", "sb", "lattice" and "social media". Each method has a specific set of parameters 
+                which enable more precise control of their results via other fields in this dictionary. 
+                Examples are provided in docstings of the methods. 
+            p, k, m : floats
+                Parameters used to cofigure the network generation method more precisely. Their precise 
+                meaning depends on the selected method, therefore for more information consult docstrings of 
+                a function responsible for a particular method.
+            path : string
+                Path to the file containing graph's list of edges used to create social media graph.
+            n_blocks : int
+                Number of components to be created in the stochastic block method
     n : int
         Desired number of nodes in the network
 
     Methods
+    -------
     get_graph : Graph
         Returns a graph created according to the parameters
     """
-    def __init__(self, params, n=100): #p=0.5, m=100, k=2, path="../data/facebook_combined.txt", n_blocks=10):
+    def __init__(self, params, n=100):
         self.G = nx.Graph()
         self.n = n
         self.params = params
@@ -36,7 +49,8 @@ class Network:
 
     def create_random_graph(self):
         """
-        Generating a random (Erdos-Renyi) network.
+        Generating a random (Erdos-Renyi) network. 
+        Example parameter dictionary: { "method": "er", "p": 0.5 } 
 
         self.n : int
             Total number of nodes in a graph
@@ -48,7 +62,8 @@ class Network:
 
     def create_ba_graph(self):
         """
-        Generating a Barabasi-Albert network
+        Generating a Barabasi-Albert network.
+        Example parameter dictionary: { "method": "ba", "m": 2 } 
 
         self.n : int
             Number of nodes
@@ -60,7 +75,8 @@ class Network:
 
     def create_ws_graph(self):
         """
-        Generating a Watts-Stogatz network
+        Generating a Watts-Stogatz network.
+        Example parameter dictionary: { "method": "ws", "p": 0.2, "k": 2 } 
 
         self.n : int
             Number of nodes
@@ -74,7 +90,8 @@ class Network:
 
     def create_sb_graph(self):
         """
-        Generating a stochastic block graph
+        Generating a stochastic block graph.
+        Example parameter dictionary: { "method": "sb", "n_blocks": 10, "p": 0.1, "k": 0.01 } 
 
         self.p : float
             Probability of the edge between nodes belonging to different components
@@ -91,7 +108,8 @@ class Network:
 
     def create_lattice(self):
         """
-        Generating a 2d lattice grid
+        Generating a 2d lattice grid.
+        Example parameter dictionary: { "method": "lattice", "m": 100 } 
 
         self.m : int
             Size of 1st dimension
@@ -103,6 +121,7 @@ class Network:
     def create_social_media_graph(self):
         """
         Generating a network from a data file containing a list of edges.
+        Example parameter dictionary: { "method": "social_media", "path": "../data/facebook_combined.txt" } 
 
         self.path : string
             Path to the list of edges file

@@ -38,15 +38,9 @@ class HIOM(Model):
         self.schedule = BaseScheduler(self)
 
         # create the population
-        # self.M =
-        self.M = nx.Graph()
-        self.population = 0
-
         if network_params is None:
-            network_params = {"method": "er", "p": 0.5}
-        self.network_params = network_params
-
-        self.init_population(agents)
+            network_params = {"method": "er", "p": 0.1}
+        self.init_population(agents, network_params)
 
         # agent who will interact this turn
         self.active_agent = None
@@ -66,7 +60,7 @@ class HIOM(Model):
         self.running = True
         self.data_collector.collect(self)
 
-    def init_population(self, agents):
+    def init_population(self, agents, network_params):
         # population size is calculated and an array of
         # possible agent types is stored for pop generation
         pop_size = 0
@@ -78,7 +72,7 @@ class HIOM(Model):
 
         # network topology is initialized
         # self.M = nx.fast_gnp_random_graph(self.population, 0.1)
-        network = Network(n=self.population, params=self.network_params)
+        network = Network(n=self.population, params=network_params)
         self.M = network.get_graph()
 
         # for each node in the network, agent type
