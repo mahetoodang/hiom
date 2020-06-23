@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
 
 def plot_opinion_distribution(opinions):
@@ -46,4 +47,22 @@ def plot_single_information(information, id):
     plt.xlabel("Step")
     plt.ylabel("Information")
     plt.title("Information of agent " + str(id))
+    plt.show()
+
+def plot_opinion_distribution_animation(opinions, steps):
+    # Animated plot of opinion distribution (iterating over steps)
+    fig = plt.figure()
+    ax = plt.axes(xlim=(-2, 2), ylim=(0, 100))
+
+    raw_opinions = [x[1] for x in opinions[0]]
+    counts, bins, bars = plt.hist(raw_opinions)
+    print(bars)
+
+    def animate(i, bars):
+        plt.cla()
+        plt.ylim(0,100)
+        raw_opinions = [x[1] for x in opinions[i]]
+        counts, bins, bars = plt.hist(raw_opinions, range=(-2, 2))
+        
+    plot_animation = animation.FuncAnimation(fig, animate, steps, fargs=[bars])
     plt.show()
