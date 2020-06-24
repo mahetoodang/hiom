@@ -1,6 +1,6 @@
 from mesa.visualization.modules import NetworkModule
 from mesa.visualization.ModularVisualization import ModularServer
-# from mesa.visualization.UserParam import UserSettableParameter
+from mesa.visualization.UserParam import UserSettableParameter
 # from mesa.visualization.modules import ChartModule
 from matplotlib import cm, colors
 
@@ -13,6 +13,7 @@ from src.Model import HIOM
 # Setting model parameters
 model_params = {
     # "population_size": UserSettableParameter('slider', 'Population size', 1, 1, 500)
+    "attention_delta": UserSettableParameter('slider', 'Attention decay', 1, 1, 10)
 }
 
 # Setting color maps
