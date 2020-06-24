@@ -66,3 +66,16 @@ def plot_opinion_distribution_animation(opinions, steps):
         
     plot_animation = animation.FuncAnimation(fig, animate, steps, fargs=[bars])
     plt.show()
+
+def plot_scatter(values, stdevs, labels=None, xlabel="", ylabel="", xscale="linear", yscale="linear"):
+    if labels is None:
+        plt.plot(range(len(values)), values)
+    else:
+        plt.errorbar(labels, values, yerr=stdevs)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.xscale(xscale)
+    plt.yscale(yscale)
+    plt.grid()
+    plt.show()
+    

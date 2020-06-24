@@ -1,4 +1,5 @@
 import unidip.dip as dip
+import numpy as np
 
 def compute_hartigan_opinions(opinion):
     """
@@ -22,3 +23,9 @@ def compute_hartigan_opinions(opinion):
 
     raw_opinions = [x[1] for x in opinion]
     return dip.diptst(raw_opinions)
+
+def compute_fractions_size(opinion):
+    raw_opinions = [x[1] for x in opinion]
+    n_minus = np.sum([o <= 0.0 for o in raw_opinions])
+    n_plus = np.sum([o > 0.0 for o in raw_opinions])
+    return n_plus/len(raw_opinions), n_plus, n_minus
