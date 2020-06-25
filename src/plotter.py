@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 from matplotlib.animation import FuncAnimation
 from matplotlib import cm, colors
 
@@ -99,3 +100,46 @@ def plot_single_information(information, id):
     plt.ylabel("Information")
     plt.title("Information of agent " + str(id))
     plt.show()
+
+def plot_opinion_distribution_animation(opinions):
+    # Animated plot of opinion distribution (iterating over steps)
+    # To save the animation, uncomment last lines
+    steps = len(opinions)
+
+    fig = plt.figure()
+    ax = plt.axes(xlim=(-2, 2), ylim=(0, 100))
+
+    raw_opinions = [x[1] for x in opinions[0]]
+    counts, bins, bars = plt.hist(raw_opinions)
+
+    def animate(i, bars):
+        plt.cla()
+        plt.ylim(0,100)
+        plt.xlabel("Opinion")
+        plt.ylabel("Number of people")
+
+        raw_opinions = [x[1] for x in opinions[i]]
+        counts, bins, bars = plt.hist(raw_opinions, range=(-2, 2))
+        
+    plot_animation = animation.FuncAnimation(fig, animate, steps, fargs=[bars])
+    plot_animation.save('animation.gif', writer='imagemagick', fps=60)
+    # plt.show()
+
+    # Saving the animation
+    # Writer = animation.writers['html']
+    # writer = Writer()
+    # plot_animation.save("animation.htm", writer=writer)
+
+def plot_scatter(values, stdevs, labels=None, xlabel="", ylabel="", xscale="linear", yscale="linear"):
+    # General function to simplify plotting of various statistics 
+    if labels is None:
+        plt.plot(range(len(values)), values)
+    else:
+        plt.errorbar(labels, values, yerr=stdevs)
+    plt.xlabel(ylabel)
+    plt.ylabel(xlabel)
+    plt.xscale(xscale)
+    plt.yscale(yscale)
+    plt.grid()
+    plt.show()
+    

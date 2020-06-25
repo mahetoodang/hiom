@@ -33,7 +33,7 @@ def second_type():
 
 agents = [
     {
-        "n": 50,
+        "n": 200,
         "generator": first_type
     },
     {
