@@ -2,9 +2,11 @@ from src.Model import HIOM
 from src.plotter import plot_opinion_distribution, \
     plot_opinion_distribution_animation, \
     plot_scatter
-    # plot_single_opinion, \
-    # plot_single_information, \
-    # plot_single_attention, \
+    plot_single_opinion, \
+    plot_single_information, \
+    plot_single_attention, \
+    opinion_vs_info, \
+    opinion_vs_info_gif
 from scenarios.test import agents
 from src.stats import compute_hartigan_opinions, compute_fractions_size, compute_mean_opinion
 import numpy as np
@@ -66,11 +68,11 @@ def plot_opinion_stat_over_time(tested_parameter, tested_values, stat_function, 
 
 if __name__ == "__main__":
 
-    # Single model run
+    # # Single model run
     model = HIOM(agents, persuasion=0.001, network_params={"method": "er", "p": 0.5})
     model.run_model()
     opinion = model.data_collector.get_model_vars_dataframe()["Opinion"]
-
+    
     # plot_single_opinion(opinion, 8)
     plot_opinion_distribution(opinion)
     # plot_opinion_distribution_animation(opinion)
@@ -79,10 +81,10 @@ if __name__ == "__main__":
     # plot_opinion_stat_over_time(opinion, compute_hartigan_opinions)
     # plot_opinion_stat_over_time(opinion, compute_fractions_size)
     
-    # Hardigan Dip Test
+    # # Hardigan Dip Test
     # print(compute_hartigan_opinions(opinion[500]))
 
-    # Plotting selected opinion statistics using various model parameters
+    # # Plotting selected opinion statistics using various model parameters
     model_params = {"dt": 0.1, "network_params": {"method": "er", "m": 2, "p": 0.1}}
     # model_params = {"dt": 0.1, "network_params": { "method": "social_media", "path": "data/facebook_combined.txt" } } # Some networks, like this one, require changes in scenarios/test.py (number of agents)
     # test_opinion_stat_change("dt", [0.0001, 0.001, 0.01, 0.1, 0.5], stat_function=compute_fractions_size, xscale="log", model_params=model_params)
@@ -97,10 +99,11 @@ if __name__ == "__main__":
                                 [{"dt": 0.1, "network_params": {"method": "er", "m": 2, "p": 0.1}}, 
                                 {"dt": 0.1, "network_params": {"method": "ba", "m": 2, "p": 0.1}}], 
                                 N=1)
-    # Plot attention
+    # # Plot attention
     # attention = model.data_collector.get_model_vars_dataframe()["Attention"]
     # plot_single_attention(attention, 8)
 
-    # Plot infromation
+    # # Plot infromation
     # information = model.data_collector.get_model_vars_dataframe()["Information"]
     # plot_single_information(information, 8)
+    opinion_vs_info_gif(opinion, information, attention)

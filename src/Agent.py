@@ -20,7 +20,9 @@ class Agent(MesaAgent):
         self.information = character["information"]
 
     def step(self):
-        if self.unique_id == self.model.active_agent:
+        is_active = self.unique_id == self.model.active_agent
+        has_neighbours = len(self.neighbours) > 0
+        if is_active and has_neighbours:
             chosen_id = np.random.choice(self.neighbours)
             chosen_neighbour = None
             for agent in self.model.schedule.agents:

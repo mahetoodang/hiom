@@ -8,12 +8,16 @@ from mesa.time import BaseScheduler
 
 from .Agent import Agent
 from .Network import Network
+import sys
+sys.path.append('../')
+
+from scenarios.test import agents
 
 
 class HIOM(Model):
     def __init__(
             self,
-            agents,
+            agents=agents,
             dt=0.1,
             attention_delta=0.1,
             persuasion=1,
@@ -38,16 +42,21 @@ class HIOM(Model):
         self.schedule = BaseScheduler(self)
 
         # create the population
+        self.population = 0
         if network_params is None:
             network_params = {"method": "er", "p": 0.1}
         self.init_population(agents, network_params)
-
-        # agent who will interact this turn
-        self.active_agent = None
+        # self.G = nx.Graph()
 
         # generates network topology
         # not used right now, but can be used for mesa visualization
-        self.grid = NetworkGrid(self.M)
+        self.grid = NetworkGrid(self.G)
+
+        # create agents
+        self.create_agents(agents)
+
+        # agent who will interact this turn
+        self.active_agent = None
 
         # add datacollector
         self.data_collector = DataCollector({
@@ -64,22 +73,22 @@ class HIOM(Model):
         # population size is calculated and an array of
         # possible agent types is stored for pop generation
         pop_size = 0
-        types = []
         for atype in agents:
             pop_size += atype["n"]
-            types.append([atype["n"], atype["generator"]])
         self.population = pop_size
-
         # network topology is initialized
-        # self.M = nx.fast_gnp_random_graph(self.population, 0.1)
         network = Network(n=self.population, params=network_params)
-        self.M = network.get_graph()
+        self.G = network.get_graph()
 
+    def create_agents(self, agents):
+        types = []
+        for atype in agents:
+            types.append([atype["n"], atype["generator"]])
         # for each node in the network, agent type
         # is chosen by random choice and an agent is created
-        for node in self.M.nodes:
+        for node in self.G.nodes:
             # finds all neighbours in the network
-            neighbours = [edge[1] for edge in self.M.edges(node)]
+            neighbours = [edge[1] for edge in self.G.edges(node)]
             # chooses the agent type by random choice
             type_idx = random.choice(range(len(types)))
             agent_type = types[type_idx]
@@ -102,6 +111,7 @@ class HIOM(Model):
             generator
         )
         self.schedule.add(agent)
+        self.grid.place_agent(agent, graph_id)
 
     def step(self):
         self.choose_agent()
