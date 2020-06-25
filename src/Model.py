@@ -15,7 +15,7 @@ class HIOM(Model):
             self,
             agents,
             dt=0.1,
-            attention_delta=0.2,
+            attention_delta=0.1,
             persuasion=1,
             a_min=-0.5,
             r_min=0.05,

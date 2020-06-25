@@ -3,9 +3,9 @@ import scipy.stats as stats
 
 
 def first_type():
-    attention = np.random.random()
+    attention = 0.01 * np.random.random() #np.random.uniform(0, 0.1)
     opinion = 0
-    lower, upper = -0.2, 0.2
+    lower, upper = -0.1, 0.1
     mu, sigma = 0, 1
     information = stats.truncnorm(
         (lower - mu) / sigma,
@@ -33,7 +33,7 @@ def second_type():
 
 agents = [
     {
-        "n": 100,
+        "n": 200,
         "generator": first_type
     },
     {
