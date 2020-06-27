@@ -4,6 +4,9 @@ import matplotlib.animation as animation
 from matplotlib.animation import FuncAnimation
 from matplotlib import cm, colors
 
+from src.Model import HIOM
+from scenarios.test import agents
+
 
 def plot_opinion_distribution(opinions):
     iterations = len(opinions)
@@ -23,8 +26,7 @@ def plot_opinion_distribution(opinions):
 
 
 def opinion_vs_info(opinions, informations, attentions):
-    iterations = len(opinions)
-    # steps = [0, int(iterations * 1 / 3), int(iterations * 2 / 3), iterations - 1]
+    # steps should be changed according to scenario
     steps = [0, 20, 40, 150]
 
     fig = plt.figure()
@@ -101,6 +103,7 @@ def plot_single_information(information, id):
     plt.title("Information of agent " + str(id))
     plt.show()
 
+
 def plot_opinion_distribution_animation(opinions):
     # Animated plot of opinion distribution (iterating over steps)
     # To save the animation, uncomment last lines
@@ -125,10 +128,6 @@ def plot_opinion_distribution_animation(opinions):
     plot_animation.save('animation.gif', writer='imagemagick', fps=60)
     # plt.show()
 
-    # Saving the animation
-    # Writer = animation.writers['html']
-    # writer = Writer()
-    # plot_animation.save("animation.htm", writer=writer)
 
 def plot_scatter(values, stdevs, labels=None, xlabel="", ylabel="", xscale="linear", yscale="linear"):
     # General function to simplify plotting of various statistics 
@@ -142,4 +141,52 @@ def plot_scatter(values, stdevs, labels=None, xlabel="", ylabel="", xscale="line
     plt.yscale(yscale)
     plt.grid()
     plt.show()
-    
+
+
+def plot_opinion_stat_over_time(tested_parameter, tested_values, stat_function, model_params_list, N=1, total_time=300):
+    # Function to plot how statistics of opinion change while varying selected parameter (tested_paramters)
+    # over predefined set of values (tested_values) in a number of models defined in the list (model_params_list).
+    # Number of test repetitions can be set via N variable, just like total time that is to be simulated.
+    # It is important to remember that the number of iterations is equal to the (total_time)/persuasion,
+    # since we assume that higher persuasion require more time.
+
+    # To interpret the results, the number of the run has to computed.
+    counter = 1
+    for dv in tested_values:
+        for _ in range(N):
+            for model_params in model_params_list:
+                model_params[tested_parameter] = dv
+                model = HIOM(agents, **model_params)
+                model.run_model(int(total_time/model.persuasion))
+
+                opinion = model.data_collector.get_model_vars_dataframe()["Opinion"]
+                iterations = len(opinion)
+                time = [i * model.persuasion for i in range(iterations)]
+                op_time = [None] * iterations
+                for i in range(iterations):
+                    op_time[i] = stat_function(opinion[i])[0]
+                plt.plot(time, op_time, label = ("run #" + str(counter)))
+                counter += 1
+    plt.title("")
+    plt.xlabel("Time")
+    # plt.ylabel("Mean opinion")
+    plt.ylabel("Mean opinion")
+    plt.grid()
+    plt.legend()
+    plt.show()
+
+
+def test_opinion_stat_change(tested_parameter, tested_values, stat_function, N=3, step_count=500, xscale="linear", yscale="linear", model_params={}):
+    last_opinions_avg = []
+    last_opinions_stdev = []
+    for dv in tested_values:
+        model_params[tested_parameter] = dv
+        results = []
+        for _ in range(N):
+            model = HIOM(agents, **model_params)
+            model.run_model(step_count=step_count)
+            opinion = model.data_collector.get_model_vars_dataframe()["Opinion"]
+            results.append(stat_function(opinion[step_count])[0])
+        last_opinions_avg.append(np.mean(results))
+        last_opinions_stdev.append(np.std(results))
+    plot_scatter(last_opinions_avg, last_opinions_stdev, xlabel=tested_parameter, labels=tested_values, xscale=xscale, yscale=yscale)

@@ -22,6 +22,7 @@ class Agent(MesaAgent):
     def step(self):
         is_active = self.unique_id == self.model.active_agent
         has_neighbours = len(self.neighbours) > 0
+        # active agents picks a random neighbour and interacts
         if is_active and has_neighbours:
             chosen_id = np.random.choice(self.neighbours)
             chosen_neighbour = None
@@ -29,12 +30,15 @@ class Agent(MesaAgent):
                 if chosen_id == agent.graph_id:
                     chosen_neighbour = agent
             self.interact(chosen_neighbour)
+        # attention decays and opinion is reformulated
         self.update_attention()
         self.update_opinion()
 
     def interact(self, chosen_neighbour):
+        # attention of both agents is increased
         self.increase_attention()
         chosen_neighbour.increase_attention()
+        # neighbour acquires new information
         chosen_neighbour.update_information(self)
 
     def update_opinion(self):

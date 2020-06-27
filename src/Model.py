@@ -1,6 +1,5 @@
 import random
 import numpy as np
-import networkx as nx
 from mesa import Model
 from mesa.space import NetworkGrid
 from mesa.datacollection import DataCollector
@@ -59,6 +58,7 @@ class HIOM(Model):
         self.active_agent = None
 
         # add datacollector
+        # collects opinion, information and attention each step
         self.data_collector = DataCollector({
             "Opinion": lambda m: self.collect_opinions(),
             "Attention": lambda m: self.collect_attentions(),
@@ -120,6 +120,7 @@ class HIOM(Model):
         self.data_collector.collect(self)
 
     def choose_agent(self):
+        # weighted random choice based on agents attentions
         ids = []
         attentions = []
         attention_sum = 0

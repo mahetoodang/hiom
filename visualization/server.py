@@ -1,7 +1,6 @@
 from mesa.visualization.modules import NetworkModule
 from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.UserParam import UserSettableParameter
-# from mesa.visualization.modules import ChartModule
 from matplotlib import cm, colors
 
 import sys
@@ -11,9 +10,14 @@ from src.Model import HIOM
 
 
 # Setting model parameters
+# decimal values can't be used so currently
+# it is just good for understanding the general dynamics
+# and looking at the network topology, but not for
+# running actual experiments
 model_params = {
-    # "population_size": UserSettableParameter('slider', 'Population size', 1, 1, 500)
-    "attention_delta": UserSettableParameter('slider', 'Attention decay', 1, 1, 10)
+    "attention_delta": UserSettableParameter('slider', 'Attention decay', 1, 1, 10),
+    "persuasion": UserSettableParameter('slider', 'Persuasion', 1, 1, 10),
+    "dt": UserSettableParameter('slider', "Time-step length", 1, 1, 10)
 }
 
 # Setting color maps
@@ -46,7 +50,12 @@ def network_portrayal(G):
         {
             "size": 6,
             "color": node_color(agents[0]),
-            "tooltip": "id: {}".format(agents[0].unique_id),
+            "tooltip": "id: {} | A: {} | I: {} | O: {}".format(
+                agents[0].unique_id,
+                round(agents[0].attention, 2),
+                round(agents[0].information, 2),
+                round(agents[0].opinion, 2)
+            )
         }
         for (_, agents) in G.nodes.data("agent")
     ]

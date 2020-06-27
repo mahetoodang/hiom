@@ -31,6 +31,8 @@ def second_type():
     }
 
 
+# a set of agents is initialized for a simulation
+# more classes of agents can be added (1 class min)
 agents = [
     {
         "n": 200,
