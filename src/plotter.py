@@ -176,7 +176,7 @@ def plot_opinion_stat_over_time(tested_parameter, tested_values, stat_function, 
     plt.show()
 
 
-def test_opinion_stat_change(tested_parameter, tested_values, stat_function, N=3, step_count=500, xscale="linear", yscale="linear", model_params={}):
+def test_opinion_stat_change(tested_parameter, tested_values, stat_function, N=3, step_count=500, xscale="linear", yscale="linear", model_params={}, ylabel=""):
     last_opinions_avg = []
     last_opinions_stdev = []
     for dv in tested_values:
@@ -189,4 +189,56 @@ def test_opinion_stat_change(tested_parameter, tested_values, stat_function, N=3
             results.append(stat_function(opinion[step_count])[0])
         last_opinions_avg.append(np.mean(results))
         last_opinions_stdev.append(np.std(results))
-    plot_scatter(last_opinions_avg, last_opinions_stdev, xlabel=tested_parameter, labels=tested_values, xscale=xscale, yscale=yscale)
+    plot_scatter(last_opinions_avg, last_opinions_stdev, ylabel=ylabel, xlabel=tested_parameter, labels=tested_values, xscale=xscale, yscale=yscale)
+
+def plot_final_stats_over_time(model_params, persuasionL, persuasionH, N=1, total_time=5000):
+    counter = 1
+    for _ in range(N):
+        model = HIOM(agents, **model_params)
+        model.persuasion = persuasionL
+                    # dt=0.01,
+                    # attention_delta=0.1,
+                    # persuasion= persuasionL,
+                    # a_min=-0.5,
+                    # r_min=0.5,
+                    # sd_opinion=0.15,
+                    # sd_info=0.005,
+                    # network_params={"method": "er", "p": 0.5})
+        model.run_model(int(total_time/persuasionL))
+
+        model2 = HIOM(agents, **model_params)
+        model2.persuasion = persuasionH
+                    
+        model2.run_model(int(total_time/persuasionH))
+
+        opinion = model.data_collector.get_model_vars_dataframe()["Opinion"]
+        iterations = len(opinion)
+        time = [i * persuasionL for i in range(iterations)]
+        op_time = [None] * iterations
+        for i in range(iterations):
+                ops = [ag[1] for ag in opinion[i]]
+                op_time[i] = np.mean(ops)
+                # op_time[i] = compute_fractions_size(opinion[i])[0]
+
+        plt.plot(time, op_time, label = ("Low persuasion run #" + str(counter)))
+        plt.xlabel("Time")
+        # plt.ylabel("Mean opinion")
+        plt.ylabel("Mean opinion")
+
+        # plt.title("Fidelity Effect")
+
+        opinion2 = model2.data_collector.get_model_vars_dataframe()["Opinion"]
+        iterations = len(opinion2)
+        time = [i * persuasionH for i in range(iterations)]
+        op_time = [None] * iterations
+        for i in range(iterations):
+                ops = [ag[1] for ag in opinion2[i]]
+                op_time[i] = np.mean(ops)
+                # op_time[i] = compute_fractions_size(opinion2[i])[0]
+
+        plt.plot(time, op_time, '--', label = ("High persuasion run #" + str(counter+1)))
+        counter += 2
+    plt.grid()
+    plt.legend()
+
+    plt.show()
