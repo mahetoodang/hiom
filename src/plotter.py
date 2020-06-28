@@ -135,8 +135,8 @@ def plot_scatter(values, stdevs, labels=None, xlabel="", ylabel="", xscale="line
         plt.plot(range(len(values)), values)
     else:
         plt.errorbar(labels, values, yerr=stdevs)
-    plt.xlabel(ylabel)
-    plt.ylabel(xlabel)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
     plt.xscale(xscale)
     plt.yscale(yscale)
     plt.grid()
